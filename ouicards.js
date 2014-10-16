@@ -4,7 +4,7 @@
     resetBuckets();
   }
 
-  function loadFromBrowser(selector, delimiter) {
+  function loadFromBrowser(selector, delimiter, name) {
     var flashcards = [],
         userInput  = $(selector).val().split('\n');
 
@@ -25,7 +25,7 @@
 
     ouicards.flashcards = flashcards;
     resetBuckets();
-    return getFromLS();
+    return getFromLS(name);
   }
 
   function next() {
@@ -68,7 +68,7 @@
     return newQuestion;
   }
 
-  function correct() {
+  function correct(name) {
     if (ouicards.currentBucket === ouicards.bucketA) {
       moveQuestion(ouicards.bucketA, ouicards.bucketB);
     } else if (ouicards.currentBucket === ouicards.bucketB) {
@@ -77,12 +77,12 @@
       moveQuestion(ouicards.bucketC, ouicards.bucketC);
     } else
       console.log('Hmm, you should not be here.');
-    saveToLS();
+    saveToLS(name);
   }
 
-  function wrong() {
+  function wrong(name) {
     moveQuestion(ouicards.currentBucket, ouicards.bucketA);
-    saveToLS();
+    saveToLS(name);
   }
 
   function moveQuestion(fromBucket, toBucket) {
@@ -111,18 +111,18 @@
     return {question: questionEl, answer: answerEl};
   }
 
-  function saveToLS() {
-    localStorage.flashcards = JSON.stringify(ouicards.flashcards);
-    localStorage.bucketA    = JSON.stringify(ouicards.bucketA);
-    localStorage.bucketB    = JSON.stringify(ouicards.bucketB);
-    localStorage.bucketC    = JSON.stringify(ouicards.bucketC);
+  function saveToLS(name) {
+    localStorage.setItem(name + 'flashcards', JSON.stringify(ouicards.flashcards));
+    localStorage.setItem(name + 'bucketA', JSON.stringify(ouicards.bucketA));
+    localStorage.setItem(name + 'bucketB', JSON.stringify(ouicards.bucketB));
+    localStorage.setItem(name + 'bucketC', JSON.stringify(ouicards.bucketC));
   }
 
-  function getFromLS() {
-    ouicards.flashcards    = JSON.parse(localStorage.flashcards || '[]');
-    ouicards.bucketA       = JSON.parse(localStorage.bucketA    || '[]');
-    ouicards.bucketB       = JSON.parse(localStorage.bucketB    || '[]');
-    ouicards.bucketC       = JSON.parse(localStorage.bucketC    || '[]');
+  function getFromLS(name) {
+    ouicards.flashcards    = JSON.parse(localStorage.getItem(name + 'flashcards') || '[]');
+    ouicards.bucketA       = JSON.parse(localStorage.getItem(name + 'bucketA') || '[]');
+    ouicards.bucketB       = JSON.parse(localStorage.getItem(name + 'bucketB') || '[]');
+    ouicards.bucketC       = JSON.parse(localStorage.getItem(name + 'bucketC') || '[]');
     ouicards.currentBucket = ouicards.bucketA.length ? ouicards.bucketA :
                          ouicards.bucketB.length ? ouicards.bucketB :
                          ouicards.bucketC.length ? ouicards.bucketC : [];
@@ -131,13 +131,13 @@
     return {flashcards: ouicards.flashcards, bucketA: ouicards.bucketA, bucketB: ouicards.bucketB, bucketC: ouicards.bucketC};
   }
 
-  function resetBuckets() {
+  function resetBuckets(name) {
     ouicards.bucketA       = ouicards.flashcards.slice(0);
     ouicards.currentBucket = ouicards.bucketA;
     ouicards.bucketB       = [];
     ouicards.bucketC       = [];
     ouicards.counter       = 1;
-    saveToLS();
+    saveToLS(name);
   }
 
   exports.ouicards = {
